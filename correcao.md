@@ -5,10 +5,12 @@
 O menu hambúrguer não funcionava corretamente quando o site era hospedado devido a:
 
 1. **Código JavaScript Duplicado**
+
    - Mesmo código presente em `script.js` e inline no `index.html`
    - Conflito entre múltiplas inicializações
 
 2. **Problemas de Carregamento**
+
    - Scripts carregados antes do DOM estar pronto
    - Conflito na ordem de execução
 
@@ -46,122 +48,126 @@ O menu hambúrguer não funcionava corretamente quando o site era hospedado devi
 ```javascript
 // Mobile Menu Toggle
 function initMobileMenu() {
-    const hamburger = document.querySelector('.hamburger');
-    const navMenu = document.querySelector('.nav-menu');
-    const navLinks = document.querySelectorAll('.nav-link');
+  const hamburger = document.querySelector(".hamburger");
+  const navMenu = document.querySelector(".nav-menu");
+  const navLinks = document.querySelectorAll(".nav-link");
 
-    // Verifica se a visualização é mobile
-    const isMobileView = () => window.innerWidth <= 992;
+  // Verifica se a visualização é mobile
+  const isMobileView = () => window.innerWidth <= 992;
 
-    // Inicialização responsiva
-    const initMenu = () => {
-        if (isMobileView()) {
-            navMenu.style.display = 'none';
-            hamburger.style.display = 'flex';
-        } else {
-            navMenu.style.display = 'flex';
-            hamburger.style.display = 'none';
-            document.body.style.overflow = '';
+  // Inicialização responsiva
+  const initMenu = () => {
+    if (isMobileView()) {
+      navMenu.style.display = "none";
+      hamburger.style.display = "flex";
+    } else {
+      navMenu.style.display = "flex";
+      hamburger.style.display = "none";
+      document.body.style.overflow = "";
+    }
+  };
+
+  // Alterna o menu
+  const toggleMenu = () => {
+    const isActive = hamburger.classList.toggle("active");
+
+    if (isActive) {
+      navMenu.style.display = "flex";
+      setTimeout(() => navMenu.classList.add("active"), 10);
+      document.body.style.overflow = "hidden";
+    } else {
+      navMenu.classList.remove("active");
+      setTimeout(() => {
+        if (!navMenu.classList.contains("active")) {
+          navMenu.style.display = "none";
         }
-    };
+      }, 300);
+      document.body.style.overflow = "";
+    }
+  };
 
-    // Alterna o menu
-    const toggleMenu = () => {
-        const isActive = hamburger.classList.toggle('active');
-        
-        if (isActive) {
-            navMenu.style.display = 'flex';
-            setTimeout(() => navMenu.classList.add('active'), 10);
-            document.body.style.overflow = 'hidden';
-        } else {
-            navMenu.classList.remove('active');
-            setTimeout(() => {
-                if (!navMenu.classList.contains('active')) {
-                    navMenu.style.display = 'none';
-                }
-            }, 300);
-            document.body.style.overflow = '';
+  // Fecha o menu
+  const closeMenu = () => {
+    hamburger.classList.remove("active");
+    navMenu.classList.remove("active");
+    document.body.style.overflow = "";
+    setTimeout(() => {
+      if (!hamburger.classList.contains("active")) {
+        navMenu.style.display = "none";
+      }
+    }, 300);
+  };
+
+  // Configura eventos apenas para mobile
+  const setupMobileEvents = () => {
+    // Toggle menu no clique
+    hamburger.addEventListener("click", (e) => {
+      e.stopPropagation();
+      toggleMenu();
+    });
+
+    // Fecha ao clicar em um link
+    navLinks.forEach((link) => {
+      link.addEventListener("click", closeMenu);
+    });
+
+    // Fecha ao clicar fora
+    document.addEventListener("click", (e) => {
+      if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
+        closeMenu();
+      }
+    });
+
+    // Atualiza na mudança de tamanho
+    window.addEventListener("resize", () => {
+      if (isMobileView()) {
+        if (!hamburger.classList.contains("active")) {
+          navMenu.style.display = "none";
         }
-    };
+        hamburger.style.display = "flex";
+      } else {
+        navMenu.style.display = "flex";
+        hamburger.style.display = "none";
+        hamburger.classList.remove("active");
+        navMenu.classList.remove("active");
+        document.body.style.overflow = "";
+      }
+    });
+  };
 
-    // Fecha o menu
-    const closeMenu = () => {
-        hamburger.classList.remove('active');
-        navMenu.classList.remove('active');
-        document.body.style.overflow = '';
-        setTimeout(() => {
-            if (!hamburger.classList.contains('active')) {
-                navMenu.style.display = 'none';
-            }
-        }, 300);
-    };
-
-    // Configura eventos apenas para mobile
-    const setupMobileEvents = () => {
-        // Toggle menu no clique
-        hamburger.addEventListener('click', (e) => {
-            e.stopPropagation();
-            toggleMenu();
-        });
-
-        // Fecha ao clicar em um link
-        navLinks.forEach(link => {
-            link.addEventListener('click', closeMenu);
-        });
-
-        // Fecha ao clicar fora
-        document.addEventListener('click', (e) => {
-            if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
-                closeMenu();
-            }
-        });
-
-        // Atualiza na mudança de tamanho
-        window.addEventListener('resize', () => {
-            if (isMobileView()) {
-                if (!hamburger.classList.contains('active')) {
-                    navMenu.style.display = 'none';
-                }
-                hamburger.style.display = 'flex';
-            } else {
-                navMenu.style.display = 'flex';
-                hamburger.style.display = 'none';
-                hamburger.classList.remove('active');
-                navMenu.classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        });
-    };
-
-    // Inicialização
-    initMenu();
-    if (isMobileView()) setupMobileEvents();
+  // Inicialização
+  initMenu();
+  if (isMobileView()) setupMobileEvents();
 }
 
 // Inicializa quando o DOM estiver pronto
-document.addEventListener('DOMContentLoaded', function() {
-    initMobileMenu();
+document.addEventListener("DOMContentLoaded", function () {
+  initMobileMenu();
 });
 ```
 
 ## 🎯 Melhorias Implementadas
 
 ### 1. Código Mais Limpo
+
 - Remoção de duplicações
 - Funções menores e mais específicas
 - Melhor organização do código
 
 ### 2. Performance
+
 - Eventos otimizados
 - Menos manipulação do DOM
 - Melhor gerenciamento de memória
 
 ### 3. Manutenibilidade
+
 - Código mais fácil de entender
 - Melhor estrutura para futuras atualizações
 - Comentários explicativos
 
 ### 4. Experiência do Usuário
+
 - Animações mais suaves
 - Melhor feedback visual
 - Comportamento consistente em diferentes dispositivos
@@ -169,17 +175,19 @@ document.addEventListener('DOMContentLoaded', function() {
 ## 📱 Comportamento em Diferentes Telas
 
 | Tamanho da Tela | Comportamento do Menu |
-|-----------------|----------------------|
-| > 992px        | Menu horizontal      |
-| ≤ 992px        | Menu hambúrguer      |
+| --------------- | --------------------- |
+| > 992px         | Menu horizontal       |
+| ≤ 992px         | Menu hambúrguer       |
 
 ## 🔄 Fluxo de Trabalho
 
 1. **Carregamento da Página**
+
    - Verifica o tamanho da tela
    - Inicializa o menu apropriado
 
 2. **Interação do Usuário**
+
    - Toque/Clique no ícone
    - Navegação por links
    - Redimensionamento da janela
@@ -188,10 +196,7 @@ document.addEventListener('DOMContentLoaded', function() {
    - Mantém o estado do menu
    - Atualiza a interface conforme necessário
 
-
 correçao de efeito duplo no botao!
-
-
 
 O efeito duplo estava acontecendo porque havia estilos conflitantes para os estados de :hover e :active nos links de navegação. Especificamente:
 
@@ -215,92 +220,92 @@ Antes:
 
 css
 .nav-link {
-  color: #4a4a4a;
-  text-decoration: none;
-  font-weight: 600;
-  padding: 0.5rem 1rem;
-  border-radius: 4px;
-  transition: all 0.3s ease;
-  position: relative;
-  display: inline-block;
+color: #4a4a4a;
+text-decoration: none;
+font-weight: 600;
+padding: 0.5rem 1rem;
+border-radius: 4px;
+transition: all 0.3s ease;
+position: relative;
+display: inline-block;
 }
 
 .nav-link:hover {
-  color: #030036;
-  background-color: transparent;
+color: #030036;
+background-color: transparent;
 }
 
 .nav-link::after {
-  content: "";
-  position: absolute;
-  width: 0;
-  height: 2px;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  background-color: #7f7ccd;
-  transition: width 0.3s ease;
-  pointer-events: none;
+content: "";
+position: absolute;
+width: 0;
+height: 2px;
+bottom: 0;
+left: 0;
+right: 0;
+margin: 0 auto;
+background-color: #7f7ccd;
+transition: width 0.3s ease;
+pointer-events: none;
 }
 
 .nav-link:not(.active):hover::after {
-  width: 100%;
+width: 100%;
 }
 
-/* Estes estilos causavam o efeito duplo */
+/_ Estes estilos causavam o efeito duplo _/
 .nav-link.active {
-  color: #2c5aa0;
-  background-color: rgba(44, 90, 160, 0.1);
+color: #2c5aa0;
+background-color: rgba(44, 90, 160, 0.1);
 }
 
 .nav-link.active::after {
-  display: none;
+display: none;
 }
 Depois:
 
 css
-/* Estilo base dos links de navegação */
+/_ Estilo base dos links de navegação _/
 .nav-link {
-  color: #4a4a4a;
-  text-decoration: none;
-  font-weight: 600;
-  padding: 0.5rem 1rem;
-  position: relative;
-  display: inline-block;
-  outline: none !important;
+color: #4a4a4a;
+text-decoration: none;
+font-weight: 600;
+padding: 0.5rem 1rem;
+position: relative;
+display: inline-block;
+outline: none !important;
 }
 
-/* Efeito de sublinhado ao passar o mouse */
+/_ Efeito de sublinhado ao passar o mouse _/
 .nav-link::after {
-  content: "";
-  position: absolute;
-  width: 0;
-  height: 2px;
-  bottom: 0;
-  left: 0;
-  background-color: #7f7ccd;
-  transition: width 0.3s ease;
+content: "";
+position: absolute;
+width: 0;
+height: 2px;
+bottom: 0;
+left: 0;
+background-color: #7f7ccd;
+transition: width 0.3s ease;
 }
 
-/* Mostra o sublinhado apenas no hover */
+/_ Mostra o sublinhado apenas no hover _/
 .nav-link:hover::after {
-  width: 100%;
+width: 100%;
 }
 
-/* Remove todos os efeitos de clique e foco */
+/_ Remove todos os efeitos de clique e foco _/
 .nav-link:focus,
 .nav-link:active,
 .nav-link:focus-visible {
-  outline: none !important;
-  box-shadow: none !important;
-  background: transparent !important;
-  color: #4a4a4a !important;
+outline: none !important;
+box-shadow: none !important;
+background: transparent !important;
+color: #4a4a4a !important;
 }
 
-/* Remove o efeito de clique ativo */
+/_ Remove o efeito de clique ativo _/
 .nav-link:active::after {
-  display: none;
+display: none;
 }
 As principais mudanças foram:
 
@@ -310,3 +315,94 @@ Adição de estilos para sobrescrever efeitos de foco e clique
 Simplificação do seletor de hover
 Adição de !important para garantir que os estilos sejam aplicados
 Remoção de propriedades desnecessárias como border-radius e pointer-events
+
+bag de funcionamento dos menus tinha que carregar a pagina para abrir a opção de menu no hamburguer
+
+# Correções no Menu Mobile
+
+## 🧩 Verificação Inicial
+
+Antes de aplicar as correções, é importante **verificar o HTML** para entender melhor a estrutura do menu e identificar possíveis problemas.
+
+## ⚠️ Problemas Identificados
+
+- O evento de clique no hambúrguer não está sendo gerenciado corretamente
+- A inicialização do menu pode estar acontecendo antes do DOM estar totalmente carregado
+- O gerenciamento de estado do menu pode estar inconsistente
+
+---
+
+## ✅ Correção no `script.js`
+
+```javascript
+// Mobile Menu Toggle
+function initMobileMenu() {
+  const hamburger = document.querySelector(".hamburger");
+  const navMenu = document.querySelector(".nav-menu");
+  const navLinks = document.querySelectorAll(".nav-link");
+
+  const isMobileView = () => window.innerWidth <= 992;
+
+  const openMenu = () => {
+    navMenu.style.display = "flex";
+    setTimeout(() => {
+      navMenu.classList.add("active");
+    }, 10);
+    hamburger.classList.add("active");
+    document.body.style.overflow = "hidden";
+  };
+
+  const closeMenu = () => {
+    navMenu.classList.remove("active");
+    hamburger.classList.remove("active");
+    document.body.style.overflow = "";
+    setTimeout(() => {
+      if (!navMenu.classList.contains("active")) {
+        navMenu.style.display = "none";
+      }
+    }, 300);
+  };
+
+  const initMenu = () => {
+    if (isMobileView()) {
+      navMenu.style.display = "none";
+      hamburger.style.display = "flex";
+    } else {
+      navMenu.style.display = "flex";
+      hamburger.style.display = "none";
+      document.body.style.overflow = "";
+      navMenu.classList.remove("active");
+      hamburger.classList.remove("active");
+    }
+  };
+
+  initMenu();
+
+  hamburger.addEventListener("click", function (e) {
+    e.stopPropagation();
+    if (hamburger.classList.contains("active")) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  navLinks.forEach((link) => {
+    link.addEventListener("click", closeMenu);
+  });
+
+  document.addEventListener("click", function (e) {
+    if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
+      closeMenu();
+    }
+  });
+
+  let resizeTimer;
+  window.addEventListener("resize", function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => {
+      initMenu();
+    }, 250);
+  });
+}
+```
