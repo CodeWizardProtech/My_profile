@@ -187,3 +187,126 @@ document.addEventListener('DOMContentLoaded', function() {
 3. **Gerenciamento de Estado**
    - Mantém o estado do menu
    - Atualiza a interface conforme necessário
+
+
+correçao de efeito duplo no botao!
+
+
+
+O efeito duplo estava acontecendo porque havia estilos conflitantes para os estados de :hover e :active nos links de navegação. Especificamente:
+
+Havia um estilo de fundo que aparecia ao clicar nos links
+O sublinhado poderia aparecer junto com o fundo ao clicar
+Havia estilos de transição que podiam causar sobreposição de efeitos
+As principais causas eram:
+
+Estilos de :active que adicionavam fundo ao clicar
+Falta de especificidade nos seletores CSS
+Transições que podiam se sobrepor
+Na correção, removi todos os efeitos adicionais, mantendo apenas o sublinhado no hover, e adicionei !important e outline: none para garantir que nenhum efeito indesejado apareça ao clicar ou focar nos links.
+
+Feedback submitted
+
+mostre o codigo antes e o depois de corrigido
+
+Aqui está a comparação do código antes e depois da correção:
+
+Antes:
+
+css
+.nav-link {
+  color: #4a4a4a;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+}
+
+.nav-link:hover {
+  color: #030036;
+  background-color: transparent;
+}
+
+.nav-link::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  background-color: #7f7ccd;
+  transition: width 0.3s ease;
+  pointer-events: none;
+}
+
+.nav-link:not(.active):hover::after {
+  width: 100%;
+}
+
+/* Estes estilos causavam o efeito duplo */
+.nav-link.active {
+  color: #2c5aa0;
+  background-color: rgba(44, 90, 160, 0.1);
+}
+
+.nav-link.active::after {
+  display: none;
+}
+Depois:
+
+css
+/* Estilo base dos links de navegação */
+.nav-link {
+  color: #4a4a4a;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  position: relative;
+  display: inline-block;
+  outline: none !important;
+}
+
+/* Efeito de sublinhado ao passar o mouse */
+.nav-link::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 2px;
+  bottom: 0;
+  left: 0;
+  background-color: #7f7ccd;
+  transition: width 0.3s ease;
+}
+
+/* Mostra o sublinhado apenas no hover */
+.nav-link:hover::after {
+  width: 100%;
+}
+
+/* Remove todos os efeitos de clique e foco */
+.nav-link:focus,
+.nav-link:active,
+.nav-link:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+  color: #4a4a4a !important;
+}
+
+/* Remove o efeito de clique ativo */
+.nav-link:active::after {
+  display: none;
+}
+As principais mudanças foram:
+
+Remoção do estilo .active que causava fundo azul
+Remoção de transições desnecessárias
+Adição de estilos para sobrescrever efeitos de foco e clique
+Simplificação do seletor de hover
+Adição de !important para garantir que os estilos sejam aplicados
+Remoção de propriedades desnecessárias como border-radius e pointer-events
