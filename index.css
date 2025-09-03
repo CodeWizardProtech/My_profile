@@ -1,0 +1,98 @@
+    :root{
+  --img: 160px;           /* diâmetro da foto */
+  --ring1: 28px;          /* anel roxo interno (agora igual ao azul) */
+  --line: 2px;            /* linha clara */
+  --ring2: 28px;          /* anel azul externo */
+  --violet: #7f7ccd;      /* cor do anel roxo */
+  --lineColor: rgba(234, 234, 255, 0.425); /* linha clara mais suave */
+  --blue: #6180d2;        /* cor do anel azul */
+}
+
+.frame{
+  display:grid;
+  place-items:center;
+  width: calc(var(--img) + 2*(var(--ring1) + var(--line) + var(--ring2)));
+  height: calc(var(--img) + 2*(var(--ring1) + var(--line) + var(--ring2)));
+  border-radius: 50%;
+  background:
+    radial-gradient(circle,
+      transparent calc(var(--img) / 2),
+      var(--violet) calc(var(--img) / 2) calc((var(--img) / 2) + var(--ring1)),
+      var(--lineColor) calc((var(--img) / 2) + var(--ring1))
+                      calc((var(--img) / 2) + var(--ring1) + var(--line)),
+      var(--blue) calc((var(--img) / 2) + var(--ring1) + var(--line)) 100%
+    );
+}
+
+.frame img{
+  width: var(--img);
+  height: var(--img);
+  border-radius: 50%;
+  object-fit: cover;
+  display:block;
+}
+
+    /* Exemplo de como seu CSS deve ficar */
+.profile-placeholder {
+    position: relative;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    overflow: hidden;
+    background-color: #e8f4fd;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: none;
+    border: none;
+    outline: none;
+}
+
+.profile-photo {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+.ring1 {
+    position: absolute;
+    width: 210px;
+    height: 210px;
+    border-radius: 50%;
+    border: 16px solid #7f7ccd; /* Roxo largo */
+    box-sizing: border-box;
+}
+
+.ring1-outline {
+    position: absolute;
+    width: 242px; /* 210 + 16*2 (largura do ring1) */
+    height: 242px;
+    border-radius: 50%;
+    border: 2px solid #d6d5f7; /* Linha clara combinando */
+    box-sizing: border-box;
+}
+
+.ring2 {
+    position: absolute;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    border: 16px solid #6180d2; /* Azul largo */
+    box-sizing: border-box;
+}
+
+.profile-rings {
+    position: relative;
+    width: 280px;
+    height: 280px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
