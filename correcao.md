@@ -1,89 +1,189 @@
-# Correção e Otimização do Menu de Navegação
+# 📱 Correção do Menu Hamburguer
 
-A seguir, apresento um resumo das alterações realizadas para corrigir e otimizar o menu de navegação, tornando-o mais eficiente e responsivo.
+## 🔍 Problema Identificado
 
-## Antes (Problemas Identificados)
+O menu hambúrguer não funcionava corretamente quando o site era hospedado devido a:
 
-### HTML
+1. **Código JavaScript Duplicado**
+   - Mesmo código presente em `script.js` e inline no `index.html`
+   - Conflito entre múltiplas inicializações
 
-- **Carregamento de Scripts:** O JavaScript estava sendo carregado na tag `<head>`, o que poderia bloquear a renderização da página.
-- **Otimização:** O código do menu hambúrguer continha estilos inline, dificultando a manutenção.
+2. **Problemas de Carregamento**
+   - Scripts carregados antes do DOM estar pronto
+   - Conflito na ordem de execução
 
-### CSS
+3. **Má Gestão de Eventos**
+   - Múltiplos listeners adicionados ao mesmo elemento
+   - Eventos não removidos corretamente
 
-- **Estilos Inline:** Havia estilos aplicados diretamente no HTML, o que não é uma boa prática.
-- **Estilos Faltantes:** Faltavam regras específicas para o comportamento do menu em dispositivos móveis.
-- **Conflitos:** Potenciais conflitos de `z-index` poderiam fazer com que outros elementos sobrepusessem o menu.
+## 🛠️ Solução Implementada
 
-### JavaScript
+### 1. Estrutura do HTML (Antes)
 
-- **Execução:** O código não estava configurado para rodar apenas após o carregamento completo do DOM.
-- **Segurança:** Faltavam algumas verificações para garantir o funcionamento correto em diferentes cenários.
-
----
-
-## Depois (Soluções Aplicadas)
-
-### HTML
-
-- **Posicionamento do Script:** O link para o arquivo JavaScript foi movido para o final da tag `<body>`.
-- **Limpeza do Código:** Os estilos inline do botão do menu foram removidos e transferidos para o arquivo CSS.
-
-### CSS
-
-```css
-/* Estilos organizados para o menu hambúrguer */
-.hamburger {
-  display: none; /* Escondido por padrão em telas maiores */
-  /* ... outros estilos ... */
-}
-
-.hamburger.active .bar {
-  /* Animações suaves para a transformação em 'X' */
-}
-
-@media (max-width: 992px) {
-  .hamburger {
-    display: flex; /* Visível em telas menores */
-  }
-  .nav-menu {
-    position: fixed;
-    right: -100%;
-    /* ... outros estilos para o menu lateral ... */
-  }
-}
+```html
+<!-- Código problemático -->
+<script>
+    // Código duplicado do menu
+    document.addEventListener('DOMContentLoaded', function() {
+        const hamburger = document.querySelector('.hamburger');
+        // ... código duplicado ...
+    });
+</script>
+<script src="script.js"></script> <!-- Código duplicado aqui também -->
+</body>
 ```
 
-### JavaScript
+### 2. Estrutura do HTML (Depois)
+
+```html
+<!-- Apenas uma referência ao script -->
+<script src="script.js"></script>
+</body>
+```
+
+### 3. Código JavaScript Otimizado
 
 ```javascript
-document.addEventListener("DOMContentLoaded", function () {
-  const hamburger = document.querySelector(".hamburger");
-  const navMenu = document.querySelector(".nav-menu");
-  // ... lógica do menu ...
+// Mobile Menu Toggle
+function initMobileMenu() {
+    const hamburger = document.querySelector('.hamburger');
+    const navMenu = document.querySelector('.nav-menu');
+    const navLinks = document.querySelectorAll('.nav-link');
+
+    // Verifica se a visualização é mobile
+    const isMobileView = () => window.innerWidth <= 992;
+
+    // Inicialização responsiva
+    const initMenu = () => {
+        if (isMobileView()) {
+            navMenu.style.display = 'none';
+            hamburger.style.display = 'flex';
+        } else {
+            navMenu.style.display = 'flex';
+            hamburger.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+    };
+
+    // Alterna o menu
+    const toggleMenu = () => {
+        const isActive = hamburger.classList.toggle('active');
+        
+        if (isActive) {
+            navMenu.style.display = 'flex';
+            setTimeout(() => navMenu.classList.add('active'), 10);
+            document.body.style.overflow = 'hidden';
+        } else {
+            navMenu.classList.remove('active');
+            setTimeout(() => {
+                if (!navMenu.classList.contains('active')) {
+                    navMenu.style.display = 'none';
+                }
+            }, 300);
+            document.body.style.overflow = '';
+        }
+    };
+
+    // Fecha o menu
+    const closeMenu = () => {
+        hamburger.classList.remove('active');
+        navMenu.classList.remove('active');
+        document.body.style.overflow = '';
+        setTimeout(() => {
+            if (!hamburger.classList.contains('active')) {
+                navMenu.style.display = 'none';
+            }
+        }, 300);
+    };
+
+    // Configura eventos apenas para mobile
+    const setupMobileEvents = () => {
+        // Toggle menu no clique
+        hamburger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            toggleMenu();
+        });
+
+        // Fecha ao clicar em um link
+        navLinks.forEach(link => {
+            link.addEventListener('click', closeMenu);
+        });
+
+        // Fecha ao clicar fora
+        document.addEventListener('click', (e) => {
+            if (!hamburger.contains(e.target) && !navMenu.contains(e.target)) {
+                closeMenu();
+            }
+        });
+
+        // Atualiza na mudança de tamanho
+        window.addEventListener('resize', () => {
+            if (isMobileView()) {
+                if (!hamburger.classList.contains('active')) {
+                    navMenu.style.display = 'none';
+                }
+                hamburger.style.display = 'flex';
+            } else {
+                navMenu.style.display = 'flex';
+                hamburger.style.display = 'none';
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+    };
+
+    // Inicialização
+    initMenu();
+    if (isMobileView()) setupMobileEvents();
+}
+
+// Inicializa quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', function() {
+    initMobileMenu();
 });
 ```
 
----
+## 🎯 Melhorias Implementadas
 
-## Principais Melhorias
+### 1. Código Mais Limpo
+- Remoção de duplicações
+- Funções menores e mais específicas
+- Melhor organização do código
 
-- **🚀 Carregamento:**
+### 2. Performance
+- Eventos otimizados
+- Menos manipulação do DOM
+- Melhor gerenciamento de memória
 
-  - O JavaScript agora é carregado após o HTML, melhorando o tempo de renderização da página.
-  - O código só é executado quando o DOM está completamente pronto, evitando erros.
+### 3. Manutenibilidade
+- Código mais fácil de entender
+- Melhor estrutura para futuras atualizações
+- Comentários explicativos
 
-- **📱 Responsividade:**
+### 4. Experiência do Usuário
+- Animações mais suaves
+- Melhor feedback visual
+- Comportamento consistente em diferentes dispositivos
 
-  - O menu móvel é ativado corretamente em telas com largura inferior a `992px`.
-  - As animações de abertura e fechamento são suaves e agradáveis.
+## 📱 Comportamento em Diferentes Telas
 
-- **♿ Acessibilidade:**
+| Tamanho da Tela | Comportamento do Menu |
+|-----------------|----------------------|
+| > 992px        | Menu horizontal      |
+| ≤ 992px        | Menu hambúrguer      |
 
-  - Melhoria no contraste e nas transições para uma experiência de usuário mais inclusiva.
+## 🔄 Fluxo de Trabalho
 
-- **🔧 Manutenção:**
-  - O código está mais limpo, com a separação clara entre HTML, CSS e JavaScript.
-  - A organização facilita futuras atualizações e correções.
+1. **Carregamento da Página**
+   - Verifica o tamanho da tela
+   - Inicializa o menu apropriado
 
-Com essas mudanças, o menu agora funciona de forma robusta e eficiente em todos os dispositivos!
+2. **Interação do Usuário**
+   - Toque/Clique no ícone
+   - Navegação por links
+   - Redimensionamento da janela
+
+3. **Gerenciamento de Estado**
+   - Mantém o estado do menu
+   - Atualiza a interface conforme necessário
